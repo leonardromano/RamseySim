@@ -10,11 +10,11 @@ from Source.main import main
 import time
 
 EDM = 1e-26
-NumberOfIterations = 1
+NumberOfIterations = 100
 addNoise = True
 omega_errorbars = False
 DoPlot = False
-PlotResiduals = True
+PlotResiduals = False
 fp = 0.15
 fomega = 0.011604
 flipPolarization = False

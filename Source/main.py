@@ -43,6 +43,7 @@ def main(dipole_moment = 1e-26, Niter = 1, addNoise = False, \
         larmor_frequency_det_std_err2 = np.array([])
         spin_down_sys_count_error2 = np.array([])
         spin_up_sys_count_error2 = np.array([])
+        BadFitCounter = 0
     
     
 
@@ -67,7 +68,6 @@ def main(dipole_moment = 1e-26, Niter = 1, addNoise = False, \
         spin_down_sys_count_error1 = np.append(spin_down_sys_count_error1, dNd)
         spin_up_sys_count_error1 = np.append(spin_up_sys_count_error1, dNu)
         print('Reduced chi-squared: {}'.format(result.redchi))
-        print('Performing detector systematics {}/{}'.format(i+1,Niter))
         
         if(DoDetectorSystematics == True):
             fit_params1, std_dev1, sys_result, polarization, polarization_fit, \
@@ -79,6 +79,7 @@ def main(dipole_moment = 1e-26, Niter = 1, addNoise = False, \
                 "Avoids crashing on unrealistic uncertainties"
                 std_dev1[0] = std1[0]
                 print("Unrealistic uncertainty occured!")
+                BadFitCounter+=1
             larmor_frequency_det1        = np.append(larmor_frequency_det1, fit_params1[0])
             larmor_frequency_det_std_err1 = np.append(larmor_frequency_det_std_err1, std_dev1[0])
             print('Reduced chi-squared: {}'.format(sys_result.redchi))
@@ -95,7 +96,6 @@ def main(dipole_moment = 1e-26, Niter = 1, addNoise = False, \
         spin_down_sys_count_error2 = np.append(spin_down_sys_count_error2, dNd)
         spin_up_sys_count_error2 = np.append(spin_up_sys_count_error2, dNu)
         print('Reduced chi-squared: {}'.format(result.redchi))
-        print('Performing detector systematics {}/{}'.format(i+1,Niter))
         
         if(DoDetectorSystematics == True):
             fit_params2, std_dev2, sys_result, polarization, polarization_fit, \
@@ -107,6 +107,7 @@ def main(dipole_moment = 1e-26, Niter = 1, addNoise = False, \
                 "Avoids crashing on unrealistic uncertainties"
                 std_dev2[0] = std2[0]
                 print("Unrealistic uncertainty occured!")
+                BadFitCounter+=1
             larmor_frequency_det2       = np.append(larmor_frequency_det2, fit_params2[0])
             larmor_frequency_det_std_err2 = np.append(larmor_frequency_det_std_err2, std_dev2[0])
             print('Reduced chi-squared: {}'.format(sys_result.redchi))
@@ -175,4 +176,6 @@ def main(dipole_moment = 1e-26, Niter = 1, addNoise = False, \
               + ' +- ' + str((omega_mean_det_err1 + omega_mean_det_err2) * hbar / (4*E)))
     
         print('Systematic Shift due to detector:       ' + str(EDM_det - EDM))
+        
+        print('Fraction of bad fits: ' + str(100*BadFitCounter/2/Niter) +' %')
 
