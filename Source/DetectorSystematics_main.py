@@ -12,32 +12,31 @@ import Source.Fitting as fit
 import Source.Utility.Ramsey as Ramsey
 import Source.Utility.Plotting as plot
 import Source.Utility.QAplots as QAplots
+from Source.Utility.setDetectorParameters import setDetectorParameters
 from Source.Utility.detectorMatrices import flipPolarization as flip
 from Source.Utility.SystematicsConstants import *
 from Source.Utility.Constants import *
 
 def main(omega_data, omega_error, initialPolVector, initial_pol_error, \
          omega_range, flipPolarization, t, start_params, DoPlot = False, \
-         PlotResiduals = False):
+         PlotResiduals = False, CustomTransmissionProbabilities =False, \
+         Polarizers= [1, 0, 1, 0]):
     "Fits the polarization after beam-propagation through the detector and returns parameters"
-    #calculate raw detector output polarization
-    #maxNumbReflectionsUp = \
-    #DSut.getNumberOfReflections(initialPolVector[0]*N_ges, reflecProbUp)
-    #maxNumbReflectionsDown = \
-    #DSut.getNumberOfReflections(initialPolVector[1]*N_ges, reflecProbDown)
     
     detEfficiencyDown = mut.linearFunction(detEfficiencyDown0, delta_detEfficiencyDown, t)
     detEfficiencyUp = mut.linearFunction(detEfficiencyUp0, delta_detEfficiencyUp, t)
     BackgroundDown = mut.linearFunction(BackgroundDown0, delta_BackgroundDown, t)
     BackgroundUp = mut.linearFunction(BackgroundUp0, delta_BackgroundUp, t)
     
+    transmission, transmission_err, loss, loss_err = \
+    setDetectorParameters(CustomTransmissionProbabilities, *Polarizers)
+    
     #spinflip before the polarization enters the detector system
     if flipPolarization:
         initialPolVector = flip(initialPolVector)
     
     NUp, NDown, polarization, Tup, Tdown, Loss, polarizationVector = \
-    run.systematics(initialPolVector, lossUp, lossDown, tdownup, tdowndown, \
-                    tupup, tupdown, N_ges, detEfficiencyDown, \
+    run.systematics(initialPolVector, *loss, *transmission, N_ges, detEfficiencyDown, \
                     detEfficiencyUp, BackgroundDown, BackgroundUp)
     
     #calculate statistical error of raw polarization
@@ -45,7 +44,8 @@ def main(omega_data, omega_error, initialPolVector, initial_pol_error, \
                                  initial_pol_error, NUp+NDown, N_ges, \
                                  detEfficiencyUp*Tup, \
                                  detEfficiencyDown*Tdown, Loss, \
-                                 detEfficiencyUp, detEfficiencyDown)
+                                 detEfficiencyUp, detEfficiencyDown, *loss, \
+                                 *transmission_err, *loss_err)
     
     # Fit ramsey pattern to calculated test data
     fit_params, param_std_dev, result  = fit.ramsey_fringes\

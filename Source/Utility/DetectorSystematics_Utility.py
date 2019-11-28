@@ -51,7 +51,8 @@ def getNumberOfReflections(N_total, reflecProb):
 def getPolError(polAfter, initialPolVector, initial_pol_error, \
                 N_total_detector, N_ges, redTransMatrixUp, \
                 redTransMatrixDown, LossMatrix, detEfficiencyUp, \
-                detEfficiencyDown):
+                detEfficiencyDown, lossUp, lossDown, tupup_err, tupdown_err, \
+                tdowndown_err, tdownup_err, lossUp_err, lossDown_err):
     "returns the polarization error of the detector"
     return sigma_gauge*N_ges/N_total_detector*\
 np.sqrt((initial_pol_error/2*dpAfterdpInitial(np.dot(redTransMatrixUp, \
@@ -77,3 +78,53 @@ def dpAfterdpInitial(TupDelta, TdownDelta, pup):
 def dpAfterdloss(p0, pAfter, redTransMatrixElementUp, redTransMatrixElementDown):
     "returns the normalized derivative of the polarization with respect to the loss Up"
     return p0*(redTransMatrixElementUp*pAfter[1]-redTransMatrixElementDown*pAfter[0])
+
+def PrimaryTransmissionCoefficient(x, y):
+    """"Returns the primary transmission Coefficient T1 for intrinsic
+    transmission probabilities x and y, referring to the preferred (upup/downdown) and 
+    unpreffered (updown/downup) transmission probability"""
+    return -T1_par0*y + ( T1_par1 - T1_par2*y)*mut.FermiDirac(x, -T1_par3, T1_par4)
+
+def PrimaryTransmissionError(x,y, sigma_x = 0, sigma_y = 0):
+    "return the statistical error of PrimaryTransmissionCoefficient(x, y)"
+    return np.sqrt((y*T1_err0)**2 +(T1_err1*mut.FermiDirac(x, -T1_par3, T1_par4))**2 +\
+                   (y*mut.FermiDirac(x, -T1_par3, T1_par4)*T1_err2)**2 +\
+                   ((T1_par4 - x)*(T1_par1 - T1_par2*y)*\
+                    mut.FermiDirac(x, -T1_par3, T1_par4)**2 * T1_err3* \
+                    np.exp(T1_par3*(T1_par4 - x)))**2 + \
+                    (T1_par3*T1_err4*(T1_par1 - T1_par2*y)*\
+                     mut.FermiDirac(x, -T1_par3, T1_par4)**2 * \
+                     np.exp(T1_par3*(T1_par4 - x)))**2 +\
+                    (T1_par3*sigma_x*(T1_par1 - T1_par2*y)*\
+                     mut.FermiDirac(x, -T1_par3, T1_par4)**2 * \
+                     np.exp(T1_par3*(T1_par4 - x)))**2 +\
+                    (sigma_y*(T1_par0 + T1_par1*mut.FermiDirac(x, -T1_par3, T1_par4)))**2)
+
+def SecondaryTransmissionCoefficient(x, y):
+    """"Returns the secondary transmission Coefficient T2 for intrinsic
+    transmission probabilities x and y, referring to the preferred (upup/downdown) and 
+    unpreffered (updown/downup) transmission probability"""
+    return T2_par0*x*y*(1+x)**(-T2_par1) *(1-y)**T2_par2
+
+def SecondaryTransmissionError(x,y, sigma_x = 0, sigma_y = 0):
+    "return the statistical error of SecondaryTransmissionCoefficient(x, y)"
+    if (y==0 or x==0 or y==1):
+        return 0
+    else:
+        return SecondaryTransmissionCoefficient(x, y)*\
+    np.sqrt((T2_err0/T2_par0)**2 + (T2_err2*np.log(1-y))**2+ \
+            (sigma_x*(1+(1-T2_par1)*x)/x/(1+x))**2 + \
+            (sigma_y*(1+(T2_par2-1)*y)/y/(1-y))**2)
+
+def LossCoefficient(x,y):
+    "Returns the Loss Coefficient Lambda for intrinsic transmission probabilities x and y"
+    return (L_par0 - L_par1*y)*x*(1+x)**(-L_par2)
+
+def LossError(x,y, sigma_x = 0, sigma_y = 0):
+    "Return the statistical error of LossCoefficient(x,y)"
+    if (x==0):
+        return np.sqrt((x*(1+x)**(-L_par2))**2 *(L_err0**2 + (L_err1*y)**2 + (sigma_y*L_par1)))
+    else:
+        return np.sqrt((x*(1+x)**(-L_par2))**2 *(L_err0**2 + (L_err1*y)**2 + \
+                        (sigma_y*L_par1)) + LossCoefficient(x,y)**2 * \
+        ((np.log(1+x)*L_err2)**2 + (sigma_x*(1+(1-L_par2))/x/(1+x))**2))

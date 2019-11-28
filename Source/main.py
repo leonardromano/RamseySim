@@ -14,8 +14,10 @@ from Source.Utility.Math_Utility import weightedAverage
 from Source.Utility.Constants import *
 
 def main(dipole_moment = 1e-26, Niter = 1, addNoise = False, \
-         omega_errorbars = False, DoPlot = False, PlotResiduals = False, fp = 0.32, fomega = 0.011604, \
-         flipPolarization = False, DoDetectorSystematics = False):
+         omega_errorbars = False, DoPlot = False, PlotResiduals = False, \
+         fp = 0.32, fomega = 0.011604, flipPolarization = False, \
+         DoDetectorSystematics = False, CustomTransmissionProbabilities = False, \
+         Polarizers_system1 = [1, 0, 1, 0], Polarizers_system2 = [1, 0, 1, 0]):
     
     omega_edm = 2*E/hbar * dipole_moment  #3e-7
     omega_larmor_test_data1 = omega_0 + omega_edm
@@ -57,7 +59,7 @@ def main(dipole_moment = 1e-26, Niter = 1, addNoise = False, \
         dT = 0.01
         
         # Do the procedure for the E-up data
-        param1, std1, result, omega, pol, omega_fit, pol_fit, pol_error, \
+        param1, std1, result, omega, pol1, omega_fit, pol_fit, pol_error1, \
         omega_error, mini, maxi, res_i, polarizationVector = simulate.and_fit\
         (omega_larmor_test_data1, [omega_0, T + dT, T1, 0, 1], random_numb, \
          dNu, dNd, addNoise, omega_errorbars, DoPlot, PlotResiduals, 2e-13, \
@@ -70,11 +72,12 @@ def main(dipole_moment = 1e-26, Niter = 1, addNoise = False, \
         print('Reduced chi-squared: {}'.format(result.redchi))
         
         if(DoDetectorSystematics == True):
-            fit_params1, std_dev1, sys_result, polarization, polarization_fit, \
-            polar_error, polVector = \
-            systematics.main(omega, omega_error, polarizationVector, pol_error, \
+            fit_params1, std_dev1, sys_result, polarization1, polarization_fit, \
+            polar_error1, polVector = \
+            systematics.main(omega, omega_error, polarizationVector, pol_error1, \
                              omega_fit, flipPolarization, i*dT, param1, DoPlot, \
-                             PlotResiduals)
+                             PlotResiduals, CustomTransmissionProbabilities, \
+                             Polarizers_system1)
             if(std_dev1[0] == None):
                 "Avoids crashing on unrealistic uncertainties"
                 std_dev1[0] = std1[0]
@@ -85,7 +88,7 @@ def main(dipole_moment = 1e-26, Niter = 1, addNoise = False, \
             print('Reduced chi-squared: {}'.format(sys_result.redchi))
         
         # Do the procedure for the E-down data
-        param2, std2, result, omega, pol, omega_fit, pol_fit, pol_error, \
+        param2, std2, result, omega, pol2, omega_fit, pol_fit, pol_error2, \
         omega_error, mini, maxi, res_i, polarizationVector = simulate.and_fit\
         (omega_larmor_test_data2, [omega_0, T + dT, T1, 0, 1], random_numb, \
          dNu, dNd, addNoise, omega_errorbars, DoPlot, PlotResiduals, 2e-13, \
@@ -98,11 +101,12 @@ def main(dipole_moment = 1e-26, Niter = 1, addNoise = False, \
         print('Reduced chi-squared: {}'.format(result.redchi))
         
         if(DoDetectorSystematics == True):
-            fit_params2, std_dev2, sys_result, polarization, polarization_fit, \
-            polar_error, polVector = \
-            systematics.main(omega, omega_error, polarizationVector, pol_error, \
+            fit_params2, std_dev2, sys_result, polarization2, polarization_fit, \
+            polar_error2, polVector = \
+            systematics.main(omega, omega_error, polarizationVector, pol_error2, \
                              omega_fit, flipPolarization, i*dT, param2, DoPlot, \
-                             PlotResiduals)
+                             PlotResiduals, CustomTransmissionProbabilities, \
+                             Polarizers_system2)
             if(std_dev2[0] == None):
                 "Avoids crashing on unrealistic uncertainties"
                 std_dev2[0] = std2[0]
@@ -112,9 +116,9 @@ def main(dipole_moment = 1e-26, Niter = 1, addNoise = False, \
             larmor_frequency_det_std_err2 = np.append(larmor_frequency_det_std_err2, std_dev2[0])
             print('Reduced chi-squared: {}'.format(sys_result.redchi))
 
-    dist1 = np.abs(pol - Ramsey.analytical(omega, *param1))
+    dist1 = np.abs(pol1 - Ramsey.analytical(omega, *param1))
     inside_count = sum([1 for i in range(len(dist1)) if \
-                        dist1[i] < pol_error[i]])/random_numb * 100
+                        dist1[i] < pol_error1[i]])/random_numb * 100
     
     weights1 = 1./larmor_frequency_std_err1**2
     
@@ -142,7 +146,7 @@ def main(dipole_moment = 1e-26, Niter = 1, addNoise = False, \
     #print('T1 time:              ' + str(param[2]) + ' +- ' + str(std[2]))
     print('')
     print('EDM:                  ' + str(EDM) \
-          + ' +- ' + str((omega_mean_err1 + omega_mean_err2) * hbar / (2*E)))
+          + ' +- ' + str(np.sqrt(omega_mean_err1**2 + omega_mean_err2**2) * hbar / (2*E)))
     
     if(DoDetectorSystematics == True):
         weights_det1 = 1./larmor_frequency_det_std_err1**2
@@ -151,9 +155,9 @@ def main(dipole_moment = 1e-26, Niter = 1, addNoise = False, \
         weights_det2 = 1./larmor_frequency_det_std_err2**2
         omega_mean_det2, omega_mean_det_err2 = weightedAverage(larmor_frequency_det2, weights_det2)
 
-        dist_det = np.abs(polarization - Ramsey.analytical(omega, *fit_params1))
+        dist_det = np.abs(polarization1 - Ramsey.analytical(omega, *fit_params1))
         inside_count_det = sum([1 for i in range(len(dist_det)) if \
-                        dist_det[i] < polar_error[i]])/random_numb * 100
+                        dist_det[i] < polar_error1[i]])/random_numb * 100
     
         EDM_det = (omega_mean_det1-omega_mean_det2)*hbar/(4*E)
 
@@ -173,7 +177,7 @@ def main(dipole_moment = 1e-26, Niter = 1, addNoise = False, \
         #print('T1 time:              ' + str(param[2]) + ' +- ' + str(std[2]))
         print('')
         print('EDM:                  ' + str(EDM_det) \
-              + ' +- ' + str((omega_mean_det_err1 + omega_mean_det_err2) * hbar / (4*E)))
+              + ' +- ' + str(np.sqrt(omega_mean_det_err1**2 + omega_mean_det_err2**2) * hbar / (4*E)))
     
         print('Systematic Shift due to detector:       ' + str(EDM_det - EDM))
         

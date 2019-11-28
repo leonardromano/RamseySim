@@ -129,3 +129,8 @@ def weightedAverage(ys, dy):
         normalization+=dy[i]
         i+=1
     return mean/normalization, 1/np.sqrt(normalization)
+
+def FermiDirac(x, beta, mu):
+    """"returns the Fermi-Dirac-Distribution function for inverse temperature 
+    beta and chemical potential mu"""
+    return 1/(1 + np.exp(beta*(x-mu)))

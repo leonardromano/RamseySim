@@ -11,8 +11,8 @@ import Source.Utility.Math_Utility as mut
 import Source.Utility.detectorMatrices as DM
 import numpy as np
 
-def systematics(initialPolVector, lossUp, lossDown, tdownup, tdowndown, \
-                tupup, tupdown, N_total, detEfficiencyDown, detEfficiencyUp, \
+def systematics(initialPolVector, lossUp, lossDown, tupup, tupdown, tdowndown, \
+                tdownup, N_total, detEfficiencyDown, detEfficiencyUp, \
                 BackgroundDown, BackgroundUp):
     "return yields, polarization, purities and fractions of correctly \
     identified spins"
