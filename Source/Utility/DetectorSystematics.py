@@ -12,18 +12,21 @@ import Source.Utility.detectorMatrices as DM
 import numpy as np
 
 def systematics(initialPolVector, lossUp, lossDown, tupup, tupdown, tdowndown, \
-                tdownup, N_total, detEfficiencyDown, detEfficiencyUp, \
-                BackgroundDown, BackgroundUp):
+                tdownup, N_total, detEfficiencyUp, detEfficiencyDown, \
+                BackgroundUp, BackgroundDown):
     "return yields, polarization, purities and fractions of correctly \
     identified spins"
+    #initialise transmission- and loss-matrix
     Tup = DM.transmissionMatrix(tupup, tupdown)
     Tdown = DM.transmissionMatrix(tdownup, tdowndown)
     Loss = DM.lossMatrix(lossUp,lossDown)
     
+    #apply matrices to polarisation vector 
     temp = np.dot(Loss, initialPolVector)
     polUp = np.dot(Tup, temp)
     polDown = np.dot(Tdown, temp)
     
+    #Extract observables
     NUp = DSut.totalDetectorCount(polUp, N_total, BackgroundUp, detEfficiencyUp)
     NDown = DSut.totalDetectorCount(polDown, N_total, BackgroundDown, detEfficiencyDown)
     NtotDetector = NUp + NDown

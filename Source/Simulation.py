@@ -77,5 +77,4 @@ def and_fit(omega_larmor, start_params, \
              omega_range, polarization_fit)
 
     return fit_params, param_std_dev, result, omega_data, polarization, \
-omega_range, polarization_fit, pol_error, omega_error, minima_i, maxima_i, \
-res_i, polarizationVector
+omega_range, pol_error, omega_error, polarizationVector

@@ -12,6 +12,7 @@ import Source.Fitting as fit
 import Source.Utility.Ramsey as Ramsey
 import Source.Utility.Plotting as plot
 import Source.Utility.QAplots as QAplots
+import numpy as np
 from Source.Utility.setDetectorParameters import setDetectorParameters
 from Source.Utility.detectorMatrices import flipPolarization as flip
 from Source.Utility.SystematicsConstants import *
@@ -20,14 +21,15 @@ from Source.Utility.Constants import *
 def main(omega_data, omega_error, initialPolVector, initial_pol_error, \
          omega_range, flipPolarization, t, start_params, DoPlot = False, \
          PlotResiduals = False, CustomTransmissionProbabilities =False, \
-         Polarizers= [1, 0, 1, 0]):
+         Polarizers= [1, 0, 1, 0], sigma_gauge = 2.0):
     "Fits the polarization after beam-propagation through the detector and returns parameters"
     
-    detEfficiencyDown = mut.linearFunction(detEfficiencyDown0, delta_detEfficiencyDown, t)
-    detEfficiencyUp = mut.linearFunction(detEfficiencyUp0, delta_detEfficiencyUp, t)
-    BackgroundDown = mut.linearFunction(BackgroundDown0, delta_BackgroundDown, t)
-    BackgroundUp = mut.linearFunction(BackgroundUp0, delta_BackgroundUp, t)
-    
+    #initialise all parameters
+    detEfficiency = mut.linearFunction(np.array([detEfficiencyUp0, \
+                                                 detEfficiencyDown0]), \
+    np.array([delta_detEfficiencyUp, delta_detEfficiencyDown]), t)
+    background = mut.linearFunction(np.array([BackgroundUp0, BackgroundDown0]), \
+    np.array([delta_BackgroundUp, delta_BackgroundDown]), t)
     transmission, transmission_err, loss, loss_err = \
     setDetectorParameters(CustomTransmissionProbabilities, *Polarizers)
     
@@ -36,16 +38,16 @@ def main(omega_data, omega_error, initialPolVector, initial_pol_error, \
         initialPolVector = flip(initialPolVector)
     
     NUp, NDown, polarization, Tup, Tdown, Loss, polarizationVector = \
-    run.systematics(initialPolVector, *loss, *transmission, N_ges, detEfficiencyDown, \
-                    detEfficiencyUp, BackgroundDown, BackgroundUp)
+    run.systematics(initialPolVector, *loss, *transmission, N_ges, \
+                    *detEfficiency, *background)
     
     #calculate statistical error of raw polarization
     pol_error = DSut.getPolError(polarizationVector, initialPolVector, \
                                  initial_pol_error, NUp+NDown, N_ges, \
-                                 detEfficiencyUp*Tup, \
-                                 detEfficiencyDown*Tdown, Loss, \
-                                 detEfficiencyUp, detEfficiencyDown, *loss, \
-                                 *transmission_err, *loss_err)
+                                 detEfficiency[0]*Tup, \
+                                 detEfficiency[1]*Tdown, Loss, \
+                                 *detEfficiency, *loss, \
+                                 *transmission_err, *loss_err, sigma_gauge)
     
     # Fit ramsey pattern to calculated test data
     fit_params, param_std_dev, result  = fit.ramsey_fringes\
@@ -62,5 +64,5 @@ def main(omega_data, omega_error, initialPolVector, initial_pol_error, \
         plot.fit_and_data(omega_data, polarization, pol_error, omega_error, \
              omega_range, polarization_fit)
     
-    return fit_params, param_std_dev, result, polarization, polarization_fit, \
-pol_error, polarizationVector
+    return fit_params, param_std_dev, result, polarization, pol_error, \
+polarizationVector

@@ -15,7 +15,6 @@ BackgroundDown0 = 0
 delta_BackgroundDown = 0
 BackgroundUp0 = 0
 delta_BackgroundUp = 0
-sigma_gauge = 2.16
 # Parameters for primary transmission coefficient
 T1_par0 = -17.4
 T1_err0 = 0.8

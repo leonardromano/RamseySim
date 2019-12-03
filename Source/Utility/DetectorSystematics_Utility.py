@@ -52,7 +52,7 @@ def getPolError(polAfter, initialPolVector, initial_pol_error, \
                 N_total_detector, N_ges, redTransMatrixUp, \
                 redTransMatrixDown, LossMatrix, detEfficiencyUp, \
                 detEfficiencyDown, lossUp, lossDown, tupup_err, tupdown_err, \
-                tdowndown_err, tdownup_err, lossUp_err, lossDown_err):
+                tdowndown_err, tdownup_err, lossUp_err, lossDown_err, sigma_gauge):
     "returns the polarization error of the detector"
     return sigma_gauge*N_ges/N_total_detector*\
 np.sqrt((initial_pol_error/2*dpAfterdpInitial(np.dot(redTransMatrixUp, \
