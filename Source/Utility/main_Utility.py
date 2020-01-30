@@ -65,8 +65,7 @@ def mainProcedure(OutputObjects, omegaL, dT, dNu, dNd, addNoise, \
                   omega_errorbars, DoPlot, PlotResiduals, fomega, fp, \
                   DoDetectorSystematics= False, flipPolarization = False, \
                   CustomTransmissionProbabilities = False, \
-                  Polarizers = None, sigma_gauge = None, \
-                  BadFitCounter = False):
+                  Polarizers = None, sigma_gauge = None, key = "0"):
     #Do Ramsey "Simulation" to produce raw data and store it
     param, std, result, omega, pol, omega_fit, pol_error, \
     omega_error, polarizationVector = simulate.and_fit\
@@ -84,12 +83,11 @@ def mainProcedure(OutputObjects, omegaL, dT, dNu, dNd, addNoise, \
         systematics.main(omega, omega_error, polarizationVector, pol_error, \
                          omega_fit, flipPolarization, dT, param, DoPlot, \
                          PlotResiduals, CustomTransmissionProbabilities, \
-                         Polarizers, sigma_gauge)
+                         Polarizers, sigma_gauge, key)
         if(std_det[0] == None):
             "Avoids crashing on unrealistic uncertainties"
             std_det[0] = std[0]
             print("Unrealistic uncertainty occured!")
-            BadFitCounter+=1
         registerOutput(OutputObjects[1], [param_det[0], std_det[0], dNd, dNu])
         parameters.append(param_det)
         polarisation.append(pol_det)

@@ -6,7 +6,6 @@ Created on Tue Sep  3 11:57:36 2019
 @author: universe
 """
 
-key = "Asy5_5"
 detEfficiencyDown0 = 1
 delta_detEfficiencyDown = 0
 detEfficiencyUp0 = 1

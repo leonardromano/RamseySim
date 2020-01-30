@@ -21,7 +21,7 @@ from Source.Utility.Constants import *
 def main(omega_data, omega_error, initialPolVector, initial_pol_error, \
          omega_range, flipPolarization, t, start_params, DoPlot = False, \
          PlotResiduals = False, CustomTransmissionProbabilities =False, \
-         Polarizers= [1, 0, 1, 0], sigma_gauge = 2.0):
+         Polarizers= [1, 0, 1, 0], sigma_gauge = 2.0, key = "0"):
     "Fits the polarization after beam-propagation through the detector and returns parameters"
     
     #initialise all parameters
@@ -31,7 +31,7 @@ def main(omega_data, omega_error, initialPolVector, initial_pol_error, \
     background = mut.linearFunction(np.array([BackgroundUp0, BackgroundDown0]), \
     np.array([delta_BackgroundUp, delta_BackgroundDown]), t)
     transmission, transmission_err, loss, loss_err = \
-    setDetectorParameters(CustomTransmissionProbabilities, *Polarizers)
+    setDetectorParameters(CustomTransmissionProbabilities, *Polarizers, key)
     
     #spinflip before the polarization enters the detector system
     if flipPolarization:

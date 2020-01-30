@@ -14,13 +14,12 @@ def main(dipole_moment = 1e-26, Niter = 1, addNoise = False, \
          fp = 0.32, fomega = 0.011604, flipPolarization = False, \
          DoDetectorSystematics = False, CustomTransmissionProbabilities = False, \
          Polarizers_system1 = [1, 0, 1, 0], Polarizers_system2 = [1, 0, 1, 0], \
-         sigma_gauge1 = 2.0, sigma_gauge2 = 2.0):
+         sigma_gauge1 = 2.0, sigma_gauge2 = 2.0, keys = ["0", "0"]):
     #initialise initial values
     omegas = ut.initOmega(dipole_moment)
     #initialise Output Objects
     OutputObjects1 = [ut.initialiseOutputObjects()]
     OutputObjects2 = [ut.initialiseOutputObjects()]
-    BadFitCounter = 0
     
     if(DoDetectorSystematics == True):
         OutputObjects1.append(ut.initialiseOutputObjects())
@@ -38,14 +37,14 @@ def main(dipole_moment = 1e-26, Niter = 1, addNoise = False, \
                          omega_errorbars, DoPlot, PlotResiduals, fomega, fp, \
                          DoDetectorSystematics, flipPolarization, \
                          CustomTransmissionProbabilities, Polarizers_system1, \
-                         sigma_gauge1, BadFitCounter)
+                         sigma_gauge1, keys[0])
         # Do the procedure for the E-down data
         omega, params2, pols2, pol_errors2 = \
         ut.mainProcedure(OutputObjects2, omegas[2], i*dT, dNu, dNd, addNoise, \
                          omega_errorbars, DoPlot, PlotResiduals, fomega, fp, \
                          DoDetectorSystematics, flipPolarization, \
                          CustomTransmissionProbabilities, Polarizers_system2, \
-                         sigma_gauge2, BadFitCounter)
+                         sigma_gauge2, keys[1])
     # Print the results
     EDM = ut.presentResults(omega, params1[0], pols1[0], pol_errors1[0], \
                             OutputObjects1[0], OutputObjects2[0], \
@@ -58,6 +57,4 @@ def main(dipole_moment = 1e-26, Niter = 1, addNoise = False, \
                                     dipole_moment, True)
     
         print('Systematic Shift due to detector:       ' + str(EDM_det - EDM))
-        
-        print('Fraction of bad fits: ' + str(100*BadFitCounter/2/Niter) +' %')
 
