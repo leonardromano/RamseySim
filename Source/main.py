@@ -46,15 +46,16 @@ def main(dipole_moment = 1e-26, Niter = 1, addNoise = False, \
                          CustomTransmissionProbabilities, Polarizers_system2, \
                          sigma_gauge2, keys[1])
     # Print the results
-    EDM = ut.presentResults(omega, params1[0], pols1[0], pol_errors1[0], \
+    EDM, EDM_error = ut.presentResults(omega, params1[0], pols1[0], pol_errors1[0], \
                             OutputObjects1[0], OutputObjects2[0], \
                             omegas[0], dipole_moment)
     
     if(DoDetectorSystematics == True):
-        EDM_det = ut.presentResults(omega, params1[1], pols1[1], \
+        EDM_det, EDM_det_error = ut.presentResults(omega, params1[1], pols1[1], \
                                     pol_errors1[1], OutputObjects1[1], \
                                     OutputObjects2[1], omegas[0], \
                                     dipole_moment, True)
     
-        print('Systematic Shift due to detector:       ' + str(EDM_det - EDM))
+        print('Systematic Shift due to detector:       ' + str(EDM_det - EDM) \
+              + ' +- ' + str((EDM_error**2 + EDM_det_error**2)**0.5))
 

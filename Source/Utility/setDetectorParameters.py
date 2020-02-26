@@ -15,13 +15,11 @@ def setDetectorParameters(CustomTransmissionProbabilities, pupup, pupdown, \
                           pdowndown_err = 0, pdownup_err = 0):
     "Decides the mode how to determine the detector Parameters and sets them"
     if (CustomTransmissionProbabilities == True):
-        print(pupup, pdownup)
         transmission = \
         np.array([dSU.PrimaryTransmissionCoefficient(pupup, pdownup), \
                   dSU.SecondaryTransmissionCoefficient(pdowndown, pupdown), \
                   dSU.PrimaryTransmissionCoefficient(pdowndown, pupdown), \
                   dSU.SecondaryTransmissionCoefficient(pupup, pdownup)])
-        print(transmission)
         transmission_err = \
         np.array([dSU.PrimaryTransmissionError(pupup, pdownup, pupup_err, pdownup_err), \
                   dSU.SecondaryTransmissionError(pdowndown, pupdown, pdowndown_err, pupdown_err), \
@@ -29,7 +27,6 @@ def setDetectorParameters(CustomTransmissionProbabilities, pupup, pupdown, \
                   dSU.SecondaryTransmissionError(pupup, pdownup, pupup_err, pdownup_err)])
         loss = np.array([dSU.LossCoefficient(pupup, pdownup), \
                          dSU.LossCoefficient(pdowndown, pupdown)])
-        print(loss)
         loss_err = \
         np.array([dSU.LossError(pupup, pdownup, pupup_err, pdownup_err), \
                   dSU.LossError(pdowndown, pupdown, pdowndown_err, pupdown_err)])

@@ -37,6 +37,7 @@ def presentResults(domain, parameters, polarization, polError, OutputObj1, \
     omega_mean1, omega_mean_err1 = weightedAverage(OutputObj1[0], OutputObj1[1]**(-2))
     omega_mean2, omega_mean_err2 = weightedAverage(OutputObj2[0], OutputObj2[1]**(-2))   
     EDM = (omega_mean1-omega_mean2)*hbar/(4*E)
+    EDM_error = np.sqrt(omega_mean_err1**2 + omega_mean_err2**2) * hbar / (2*E)
     comment = ''
     #Check if Output has to be adjusted. If more options are added a switch will be more readable
     if afterDetector == True:
@@ -57,8 +58,8 @@ def presentResults(domain, parameters, polarization, polError, OutputObj1, \
     print('Larmor frequency 2:     ' + str(omega_mean2) + ' +- ' + str(omega_mean_err2))
     print('')
     print('EDM:                  ' + str(EDM) \
-          + ' +- ' + str(np.sqrt(omega_mean_err1**2 + omega_mean_err2**2) * hbar / (2*E)))
-    return EDM
+          + ' +- ' + str(EDM_error))
+    return EDM, EDM_error
 
 
 def mainProcedure(OutputObjects, omegaL, dT, dNu, dNd, addNoise, \
