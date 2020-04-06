@@ -8,7 +8,7 @@ Created on Tue Sep  3 11:43:22 2019
 import Source.Utility.DetectorSystematics as run
 import Source.Utility.Math_Utility as mut
 import Source.Utility.DetectorSystematics_Utility as DSut
-import Source.Fitting as fit
+import Source.Utility.Fitting as fit
 import Source.Utility.Ramsey as Ramsey
 import Source.Utility.Plotting as plot
 import Source.Utility.QAplots as QAplots

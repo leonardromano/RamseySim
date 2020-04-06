@@ -9,7 +9,7 @@ import numpy as np
 import Source.Utility.Ramsey as Ramsey
 import Source.Utility.Math_Utility as mut
 import Source.Utility.QAplots as QAplots
-import Source.Fitting as fit
+import Source.Utility.Fitting as fit
 import Source.Utility.Plotting as plot
 import Source.Utility.Simulation_Utility as simut
 
